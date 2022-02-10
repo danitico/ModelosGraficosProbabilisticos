@@ -1,0 +1,141 @@
+---
+title: "Introducción al uso de redes bayesianas con R"
+author: "Daniel Ranchal Parrado"
+date: "10/02/2022"
+always_allow_html: true
+output:
+  html_notebook: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Ejercicio 1
+
+**Hacer un script en R para construir la red bayesiana (DAG y tablas de probabilidad) usada como ejemplo en esta práctica. El script debe contener también los comandos para dibujar la red bayesiana y para hacer las consultas (d-separación, probabilidad a posteriori) que se han explicado en la sección 7.3 usando el método de inferencia exacto y los dos aproximados.**
+
+
+```{r cars}
+summary(cars)
+```
+
+## Ejercicio 2
+
+**Construye un script en R para construir la red Asia (Dag y tablas de probabilidad)**
+
+![](network.png)
+
+**Usaremos los siguientes nombres para las variables:**
+
+- Variable Visitó Asia: A
+- Variable Es fumador: S
+- Variable Tuberculosis: T
+- Variable Cáncer de pulmón: L
+- Variable Tuberculosis o cáncer de pulmón: E
+- Variable Bronquitis: B
+- Variable Rayos X positivo: X
+- Variable Disnea: D
+
+**Con estos nombres, la red bayesiana quedaría de la siguiente forma:**
+
+![](network1.png)
+
+**Todas las variables tienen dos estados: yes y no. Los valores de probabilidad son los siguientes:**
+
+- P(A=yes) = 0.1
+- P(T=yes|A=yes) = 0.05
+- P(T=yes|A=no) = 0.01
+- P(S=yes) = 0.5
+- P(L=yes|S=yes) = 0.1
+- P(L=yes|S=no) = 0.01
+- P(B=yes|S=yes) = 0.6
+- P(B=yes|S=no) = 0.3
+- P(E=yes|L=yes, T=yes) = 1
+- P(E=yes|L=yes, T=no) = 1
+- P(E=yes|L=no, T=yes) = 1
+- P(E=yes|L=no, T=no) = 0
+- P(X=yes|E=yes) = 0.98
+- P(X=yes|E=no) = 0.05
+- P(D=yes|E=yes, B=yes) = 0.9
+- P(E=yes|E=yes, B=no) = 0.7
+- P(E=yes|E=no, B=yes) = 0.8
+- P(E=yes|E=no, B=no) = 0.1
+
+**El script debe también hacer consultas para obtener lo siguiente:**
+
+1. Tablas de probabilidad marginal de padecer tuberculosis, de padecer
+cáncer de pulmón y de padecer bronquitis. Usa el método exacto y
+los dos aproximados.
+
+```{r}
+
+```
+
+2. Tablas de probabilidad marginal a posteriori de padecer cada una de
+las tres enfermedades anteriores dado que se sabe que el paciente
+visitó Asia. Usa el método exacto y los dos aproximados.
+
+```{r}
+
+```
+
+3. Tablas de probabilidad marginal a posteriori de padecer cada una de
+las tres enfermedades anteriores dado que se sabe que el paciente
+visitó Asia, y tiene asma. Usa el método exacto y los dos aproxima-
+dos
+
+```{r}
+
+```
+
+4. Tabla de probabilidad conjunta de padecer cáncer de pulmón y bron-
+quitis. Indica cual es la probabilidad de la configuración más proba-
+ble para las variables de estas dos enfermadades.
+
+```{r}
+
+```
+
+5. Tabla de probabilidad conjunta de padecer cáncer de pulmón y bron-
+quitis dado que el paciente no visitó Asia y el paciente es fumador.
+Indica cual es la probabilidad de la configuración más probable pa-
+ra las variables de estas dos enfermadades cuando el paciente no
+visitó Asia y el paciente es fumador.
+
+```{r}
+
+```
+
+6. Si no se conoce el valor de ninguna variable, ¿qué comando(s) pode-
+mos usar para saber si visitar Asia influye en tener cáncer de pulmón
+o no?
+
+```{r}
+
+```
+
+7. Sabiendo que el paciente es fumador, ¿qué comando(s) podemos
+usar para saber si dar positivo en una prueba de rayos X, puede
+influir en tener bronquitis?
+
+```{r}
+
+```
+
+
+8. La variable Tuberculosis o cáncer tiene asociada una distribución de
+probabilidad condicional que es una función determinista de los pa-
+dres, concretamente una puerta or. Sabiendo que el paciente tiene
+tuberculosis, obtén las tablas de probabilidad marginal de padecer
+cáncer de pulmón y las tablas de probabilidad marginal a posteriori
+de padecer cáncer de pulmón si además se sabe que el paciente da
+positivo en la prueba de rayos X. ¿Puedes comentar si ha influido
+en la probabilidad de padecer cáncer de pulmón, el conocer que la
+prueba de rayos X ha sido positiva?
+
+```{r}
+
+```
+
