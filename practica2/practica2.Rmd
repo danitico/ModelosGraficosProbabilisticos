@@ -401,8 +401,14 @@ Como están d-separados conociendo el valor de S (ser fumador), dar positivo en 
 8. **La variable Tuberculosis o cáncer tiene asociada una distribución de probabilidad condicional que es una función determinista de los padres, concretamente una puerta or. Sabiendo que el paciente tiene tuberculosis, obtén las tablas de probabilidad marginal de padecer cáncer de pulmón y las tablas de probabilidad marginal a posteriori de padecer cáncer de pulmón si además se sabe que el paciente da positivo en la prueba de rayos X. ¿Puedes comentar si ha influido en la probabilidad de padecer cáncer de pulmón, el conocer que la prueba de rayos X ha sido positiva?**
 
 ```{r}
+exercise8.evidence.1 <- setEvidence(junction2, nodes = "T", states = "yes")
+querygrain(exercise8.evidence.1, nodes = "L")
 
+exercise8.evidence.2 <- setEvidence(junction2, nodes = c("T", "X"), states = c("yes", "yes"))
+querygrain(exercise8.evidence.2, nodes = "L")
 ```
+
+Como se puede observar, las probabilidades marginales no cambian, por lo que se puede afirmar que el conocer que la prueba de rayos X haya sido positiva no influye en la probabilidad de padecer cáncer de pulmón
 
 
 ## Ejercicio 3
