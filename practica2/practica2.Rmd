@@ -1,7 +1,7 @@
 ---
 title: "Introducción al uso de redes bayesianas con R"
 author: "Daniel Ranchal Parrado"
-date: "10/02/2022"
+date: "12/02/2022"
 always_allow_html: true
 output:
   pdf_document: default
@@ -223,6 +223,7 @@ cpt2 <- list(
 )
 
 bn2 <- custom.fit(dag2, cpt2)
+junction2 <- compile(as.grain(bn2))
 bn2
 ```
 
@@ -231,13 +232,30 @@ bn2
 1. **Tablas de probabilidad marginal de padecer tuberculosis, de padecer cáncer de pulmón y de padecer bronquitis. Usa el método exacto y los dos aproximados.**
 
 ```{r}
-junction2 <- compile(as.grain(bn2))
+exercise1.exact_method <- querygrain(
+  junction2,
+  nodes = c("T", "L", "B"),
+  type = "marginal"
+)
 
-exercise1.exact_method <- querygrain(junction2, nodes = c("T", "L", "B"), type = "marginal")
-
-exercise1.t.approximated.ls <- cpquery(bn2, event = (`T` == "yes"), evidence = TRUE, method = "ls")
-exercise1.l.approximated.ls <- cpquery(bn2, event = (L == "yes"), evidence = TRUE, method = "ls")
-exercise1.b.approximated.ls <- cpquery(bn2, event = (B == "yes"), evidence = TRUE, method = "ls")
+exercise1.t.approximated.ls <- cpquery(
+  bn2,
+  event = (`T` == "yes"),
+  evidence = TRUE,
+  method = "ls"
+)
+exercise1.l.approximated.ls <- cpquery(
+  bn2,
+  event = (L == "yes"),
+  evidence = TRUE,
+  method = "ls"
+)
+exercise1.b.approximated.ls <- cpquery(
+  bn2,
+  event = (B == "yes"),
+  evidence = TRUE,
+  method = "ls"
+)
 
 exercise1.approximated_method.ls <- list(
   `T` = array(
@@ -257,9 +275,24 @@ exercise1.approximated_method.ls <- list(
   )
 )
 
-exercise1.t.approximated.lw <- cpquery(bn2, event = (`T` == "yes"), evidence = TRUE, method = "lw")
-exercise1.l.approximated.lw <- cpquery(bn2, event = (L == "yes"), evidence = TRUE, method = "lw")
-exercise1.b.approximated.lw <- cpquery(bn2, event = (B == "yes"), evidence = TRUE, method = "lw")
+exercise1.t.approximated.lw <- cpquery(
+  bn2,
+  event = (`T` == "yes"),
+  evidence = TRUE,
+  method = "lw"
+)
+exercise1.l.approximated.lw <- cpquery(
+  bn2,
+  event = (L == "yes"),
+  evidence = TRUE,
+  method = "lw"
+)
+exercise1.b.approximated.lw <- cpquery(
+  bn2,
+  event = (B == "yes"),
+  evidence = TRUE,
+  method = "lw"
+)
 
 exercise1.approximated_method.lw <- list(
   `T` = array(
@@ -287,12 +320,35 @@ exercise1.approximated_method.lw
 2. **Tablas de probabilidad marginal a posteriori de padecer cada una de las tres enfermedades anteriores dado que se sabe que el paciente visitó Asia. Usa el método exacto y los dos aproximados.**
 
 ```{r}
-exercise2.evidence <- setEvidence(junction2, nodes = "A", states = "yes")
-exercise2.exact_method <- querygrain(exercise2.evidence, nodes = c("T", "L", "B"), type = "marginal")
+exercise2.evidence <- setEvidence(
+  junction2,
+  nodes = "A",
+  states = "yes"
+)
+exercise2.exact_method <- querygrain(
+  exercise2.evidence,
+  nodes = c("T", "L", "B"),
+  type = "marginal"
+)
 
-exercise2.t.approximated.ls <- cpquery(bn2, event = (`T` == "yes"), evidence = (A == "yes"), method = "ls")
-exercise2.l.approximated.ls <- cpquery(bn2, event = (L == "yes"), evidence = (A == "yes"), method = "ls")
-exercise2.b.approximated.ls <- cpquery(bn2, event = (B == "yes"), evidence = (A == "yes"), method = "ls")
+exercise2.t.approximated.ls <- cpquery(
+  bn2,
+  event = (`T` == "yes"),
+  evidence = (A == "yes"),
+  method = "ls"
+)
+exercise2.l.approximated.ls <- cpquery(
+  bn2,
+  event = (L == "yes"),
+  evidence = (A == "yes"),
+  method = "ls"
+)
+exercise2.b.approximated.ls <- cpquery(
+  bn2,
+  event = (B == "yes"),
+  evidence = (A == "yes"),
+  method = "ls"
+)
 
 exercise2.approximated_method.ls <- list(
   `T` = array(
@@ -312,9 +368,24 @@ exercise2.approximated_method.ls <- list(
   )
 )
 
-exercise2.t.approximated.lw <- cpquery(bn2, event = (`T` == "yes"), evidence = list(A = "yes"), method = "lw")
-exercise2.l.approximated.lw <- cpquery(bn2, event = (L == "yes"), evidence = list(A = "yes"), method = "lw")
-exercise2.b.approximated.lw <- cpquery(bn2, event = (B == "yes"), evidence = list(A = "yes"), method = "lw")
+exercise2.t.approximated.lw <- cpquery(
+  bn2,
+  event = (`T` == "yes"),
+  evidence = list(A = "yes"),
+  method = "lw"
+)
+exercise2.l.approximated.lw <- cpquery(
+  bn2,
+  event = (L == "yes"),
+  evidence = list(A = "yes"),
+  method = "lw"
+)
+exercise2.b.approximated.lw <- cpquery(
+  bn2,
+  event = (B == "yes"),
+  evidence = list(A = "yes"),
+  method = "lw"
+)
 
 exercise2.approximated_method.lw <- list(
   `T` = array(
@@ -339,18 +410,106 @@ exercise2.approximated_method.ls
 exercise2.approximated_method.lw
 ```
 
-3. **Tablas de probabilidad marginal a posteriori de padecer cada una de las tres enfermedades anteriores dado que se sabe que el paciente visitó Asia, y tiene asma. Usa el método exacto y los dos aproximados**
-
-**HAY UN ERROR EN EL ENUNCIADO, LA VARIABLE ASMA NO EXISTE**
+3. **Tablas de probabilidad marginal a posteriori de padecer cada una de las tres enfermedades anteriores dado que se sabe que el paciente visitó Asia, y tiene disnea. Usa el método exacto y los dos aproximados**
 
 ```{r}
+exercise3.evidence <- setEvidence(
+  junction2,
+  nodes = c("A", "D"),
+  states = c("yes", "yes")
+)
+exercise3.exact_method <- querygrain(
+  exercise3.evidence,
+  nodes = c("T", "L", "B"),
+  type = "marginal"
+)
 
+exercise3.t.approximated.ls <- cpquery(
+  bn2, event = (`T` == "yes"),
+  evidence = (A == "yes") & (D == "yes"),
+  method = "ls"
+)
+exercise3.l.approximated.ls <- cpquery(
+  bn2,
+  event = (L == "yes"),
+  evidence = (A == "yes") & (D == "yes"),
+  method = "ls"
+)
+exercise3.b.approximated.ls <- cpquery(
+  bn2,
+  event = (B == "yes"),
+  evidence = (A == "yes") & (D == "yes"),
+  method = "ls"
+)
+
+exercise3.approximated_method.ls <- list(
+  `T` = array(
+    c(exercise3.t.approximated.ls, abs(exercise3.t.approximated.ls - 1)),
+    dim = 2,
+    dimnames = list(`T` = state)
+  ),
+  L = array(
+    c(exercise3.l.approximated.ls, abs(exercise3.l.approximated.ls - 1)),
+    dim = 2,
+    dimnames = list(L = state)
+  ),
+  B = array(
+    c(exercise3.b.approximated.ls, abs(exercise3.b.approximated.ls - 1)),
+    dim = 2,
+    dimnames = list(B = state)
+  )
+)
+
+exercise3.t.approximated.lw <- cpquery(
+  bn2,
+  event = (`T` == "yes"),
+  evidence = list(A = "yes", D = "yes"),
+  method = "lw"
+)
+exercise3.l.approximated.lw <- cpquery(
+  bn2,
+  event = (L == "yes"),
+  evidence = list(A = "yes", D = "yes"),
+  method = "lw"
+)
+exercise3.b.approximated.lw <- cpquery(
+  bn2,
+  event = (B == "yes"),
+  evidence = list(A = "yes", D = "yes"),
+  method = "lw"
+)
+
+exercise3.approximated_method.lw <- list(
+  `T` = array(
+    c(exercise3.t.approximated.lw, abs(exercise3.t.approximated.lw - 1)),
+    dim = 2,
+    dimnames = list(`T` = state)
+  ),
+  L = array(
+    c(exercise3.l.approximated.lw, abs(exercise3.l.approximated.lw - 1)),
+    dim = 2,
+    dimnames = list(L = state)
+  ),
+  B = array(
+    c(exercise3.b.approximated.lw, abs(exercise3.b.approximated.lw - 1)),
+    dim = 2,
+    dimnames = list(B = state)
+  )
+)
+
+exercise3.exact_method
+exercise3.approximated_method.ls
+exercise3.approximated_method.lw
 ```
 
 4. **Tabla de probabilidad conjunta de padecer cáncer de pulmón y bronquitis. Indica cual es la probabilidad de la configuración más probable para las variables de estas dos enfermadades.**
 
 ```{r}
-exercise4.LxB <- querygrain(junction2, nodes = c("L", "B"), type = "joint")
+exercise4.LxB <- querygrain(
+  junction2,
+  nodes = c("L", "B"),
+  type = "joint"
+)
 exercise4.LxB
 ```
 
@@ -359,9 +518,17 @@ La probabilidad de la configuración más probable es 0.5265, es decir, que no s
 5. **Tabla de probabilidad conjunta de padecer cáncer de pulmón y bronquitis dado que el paciente no visitó Asia y el paciente es fumador. Indica cual es la probabilidad de la configuración más probable para las variables de estas dos enfermadades cuando el paciente no visitó Asia y el paciente es fumador.**
 
 ```{r}
-exercice5.evidence <- setEvidence(junction2, nodes = c("A", "S"), states = c("no", "yes"))
+exercice5.evidence <- setEvidence(
+  junction2,
+  nodes = c("A", "S"),
+  states = c("no", "yes")
+)
 
-exercise5.LxB <- querygrain(exercice5.evidence, nodes = c("L", "B"), type = "joint")
+exercise5.LxB <- querygrain(
+  exercice5.evidence,
+  nodes = c("L", "B"),
+  type = "joint"
+)
 exercise5.LxB
 ```
 
@@ -375,7 +542,11 @@ la probabilidad marginal de padecer cáncer de pulmón dado el visitar asia y no
 ```{r}
 dsep(bn2, x = "A", y = "L")
 
-exercise6.evidence <- setEvidence(junction2, nodes = "A", states = "yes")
+exercise6.evidence <- setEvidence(
+  junction2,
+  nodes = "A",
+  states = "yes"
+)
 querygrain(exercise6.evidence, nodes = "L")
 
 querygrain(junction2, nodes = "L")
@@ -391,10 +562,18 @@ También se tiene que utilizar el comando dsep, para ver si las dos variables so
 ```{r}
 dsep(bn2, x = "X", y = "B", z = "S")
 
-exercise7.evidence.1 <- setEvidence(junction2, nodes = c("S", "X"), states = c("yes", "yes"))
+exercise7.evidence.1 <- setEvidence(
+  junction2,
+  nodes = c("S", "X"),
+  states = c("yes", "yes")
+)
 querygrain(exercise7.evidence.1, nodes = "B")
 
-exercise7.evidence.2 <- setEvidence(junction2, nodes = "S", states = "yes")
+exercise7.evidence.2 <- setEvidence(
+  junction2,
+  nodes = "S",
+  states = "yes"
+)
 querygrain(exercise7.evidence.2, nodes = "B")
 ```
 
@@ -403,10 +582,18 @@ Como están d-separados conociendo el valor de S (ser fumador), dar positivo en 
 8. **La variable Tuberculosis o cáncer tiene asociada una distribución de probabilidad condicional que es una función determinista de los padres, concretamente una puerta or. Sabiendo que el paciente tiene tuberculosis, obtén las tablas de probabilidad marginal de padecer cáncer de pulmón y las tablas de probabilidad marginal a posteriori de padecer cáncer de pulmón si además se sabe que el paciente da positivo en la prueba de rayos X. ¿Puedes comentar si ha influido en la probabilidad de padecer cáncer de pulmón, el conocer que la prueba de rayos X ha sido positiva?**
 
 ```{r}
-exercise8.evidence.1 <- setEvidence(junction2, nodes = "T", states = "yes")
+exercise8.evidence.1 <- setEvidence(
+  junction2,
+  nodes = "T",
+  states = "yes"
+)
 querygrain(exercise8.evidence.1, nodes = "L")
 
-exercise8.evidence.2 <- setEvidence(junction2, nodes = c("T", "X"), states = c("yes", "yes"))
+exercise8.evidence.2 <- setEvidence(
+  junction2,
+  nodes = c("T", "X"),
+  states = c("yes", "yes")
+)
 querygrain(exercise8.evidence.2, nodes = "L")
 ```
 
