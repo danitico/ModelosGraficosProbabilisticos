@@ -4,8 +4,8 @@ author: "Daniel Ranchal Parrado"
 date: "10/02/2022"
 always_allow_html: true
 output:
-  html_notebook: default
   pdf_document: default
+  html_notebook: default
 ---
 
 ```{r}
@@ -369,14 +369,15 @@ La probabilidad de la configuración más probable es 0.54, es decir, que no se 
 
 6. **Si no se conoce el valor de ninguna variable, ¿qué comando(s) podemos usar para saber si visitar Asia influye en tener cáncer de pulmón o no?**
 
-Se tiene que utilizar el comando dsep, para ver si las dos variables son independientes. También se puede comprobar calculando
+Se tiene que utilizar el comando dsep para ver si las dos variables son independientes. También se puede comprobar calculando
 la probabilidad marginal de padecer cáncer de pulmón dado el visitar asia y no visitarlo.
 
 ```{r}
 dsep(bn2, x = "A", y = "L")
 
-exercise6.evidence <- setEvidence(junction2, nodes = "A", states = "no")
+exercise6.evidence <- setEvidence(junction2, nodes = "A", states = "yes")
 querygrain(exercise6.evidence, nodes = "L")
+
 querygrain(junction2, nodes = "L")
 ```
 
@@ -391,9 +392,10 @@ También se tiene que utilizar el comando dsep, para ver si las dos variables so
 dsep(bn2, x = "X", y = "B", z = "S")
 
 exercise7.evidence.1 <- setEvidence(junction2, nodes = c("S", "X"), states = c("yes", "yes"))
+querygrain(exercise7.evidence.1, nodes = "B")
+
 exercise7.evidence.2 <- setEvidence(junction2, nodes = "S", states = "yes")
-querygrain(exercise7.evidence.1, nodes = "B")
-querygrain(exercise7.evidence.1, nodes = "B")
+querygrain(exercise7.evidence.2, nodes = "B")
 ```
 
 Como están d-separados conociendo el valor de S (ser fumador), dar positivo en una prueba de rayo X no influye en tener bronquitis. Además, como las probabilidades marginales son iguales, se deduce que dado ser fumador, dar positivo en una prueba de rayos X no influye en padecer bronquitis.
@@ -408,7 +410,8 @@ exercise8.evidence.2 <- setEvidence(junction2, nodes = c("T", "X"), states = c("
 querygrain(exercise8.evidence.2, nodes = "L")
 ```
 
-Como se puede observar, las probabilidades marginales no cambian, por lo que se puede afirmar que el conocer que la prueba de rayos X haya sido positiva no influye en la probabilidad de padecer cáncer de pulmón
+Como se puede observar, las probabilidades marginales no cambian, por lo que se puede afirmar que el conocer que la prueba de rayos X haya sido positiva no influye en la probabilidad de padecer cáncer de pulmón. Esto se debe principalmente al nodo E, que es un nodo determinista que depende de los nodos T y L. Como
+se da el valor de T, E "bloquea" el camino entre X y L, y por lo tanto, el nodo X no influye en el nodo L.
 
 
 ## Ejercicio 3
@@ -419,26 +422,27 @@ Como se puede observar, las probabilidades marginales no cambian, por lo que se 
 
 **El script debe hacer lo siguiente:**
 
-- Construir el DAG de la red bayesiana
+- **Construir el DAG de la red bayesiana**
 
 ```{r}
 
 ```
 
-- Crear las tablas de probabilidad
+- **Crear las tablas de probabilidad**
 
 ```{r}
 
 ```
 
-- Hacer al menos tres consultas de la probabilidad a posteriori dada cierta evidencia, de alguna variable, usando el método exacto y los dos métodos aproximados.
+- **Hacer al menos tres consultas de la probabilidad a posteriori dada cierta evidencia, de alguna variable, usando el método exacto y los dos métodos aproximados.**
 
 ```{r}
 
 ```
 
-- Comprobar la d-separación en unos tres casos
+- **Comprobar la d-separación en unos tres casos**
 
 ```{r}
 
 ```
+
