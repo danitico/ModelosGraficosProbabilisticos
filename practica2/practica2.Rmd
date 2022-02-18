@@ -1,11 +1,13 @@
 ---
 title: "Introducción al uso de redes bayesianas con R"
 author: "Daniel Ranchal Parrado"
+header-includes:
+  - \usepackage{float}
 date: "12/02/2022"
 always_allow_html: true
 output:
-  pdf_document: default
   html_notebook: default
+  pdf_document: default
 ---
 
 ```{r}
@@ -605,6 +607,128 @@ se da el valor de T, E "bloquea" el camino entre X y L, y por lo tanto, el nodo 
 
 **Como trabajo opcional de esta parte de la asignatura, se debe entregar un script en R para construir una red bayesiana de tamaño pequeño (mínimo 7 nodos). Podría entregarse la misma red que se haga para el trabajo a entregar a Manuel Gómez. Debe entregarse también un pequeño informe con la descripción del problema, y la descripción de la red (parte cualitativa y cuantitativa).**
 
+Se ha considerado la enfermedad de la gota para la construcción de la red bayesiana. Las causas de la gota (G) se debe principalmente a la alta presencia de ácido úrico (AU) y a un peso (P) elevado. La alta presencia de ácido úrico está relacionado con la ingesta de alcohol (A) pero también a sufrir hiperuricemia (H), que se puede heredar genéticamente (HG). Mientras que el peso (P) está relacionado con la dieta (D) que tenga el individuo y al alcohol (A) que se consuma. Por otro lado, tener gota (G) supone tener inflamación en diferentes extremidades (I).
+
+Los estados de cada variable son los siguientes:
+
+- Dieta (D): buena y mala
+- Ingesta de alcohol (A): mucho, poco y nada
+- Herencia Genética (HG): Sí y no
+- Hiperuricemia (H): Sí y no
+- Peso (P): Sobrepeso y saludable
+- Presencia de ácido úrico (AU): mucho y poco
+- Gota (G): Sí y no
+- Inflamación de extremidades (I): Sí y no
+
+A partir de esta descripción, se ha definido el grafo dirigido Acíclico que se muestra en la siguiente figura
+
+![](red.png)
+
+Como se puede observar, las variables sin padres y por lo tanto independientes respecto a las demás son Dieta, Ingesta de Alcohol y Herencia genética. El nodo de herencia genética influye sobre la hiperuricemia, ya que esta se puede heredar genéticamente. Por otro lado, el nodo de la hiperuricemia e ingesta de alcohol influyen sobre la presencia de ácido úrico en el organismo. A su vez, el nodo de ingesta de alcohol y dieta influyen sobre el nodo peso. Después, los nodos peso y presencia de ácido úrico influyen en el nodo Gota. Finalmente, el nodo gota influye sobre el nodo Inflamación de extremidades. Los nodos que se encuentran por encima del nodo Gota son causas mientras que el nodo que se encuentra justamente después del nodo gota es un síntoma.
+A continuación se muestran las distribuciones de probabilidad para cada nodo.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|}
+\hline
+$P(D)$ & $buena$  & $mala$  \\ \hline
+      & $0.8$ & $0.2$ \\ \hline
+\end{tabular}
+\caption{Distribución de probabilidad del nodo Dieta}
+\label{tab:probD}
+\end{table}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|c|}
+\hline
+$P(A)$ & $mucho$  & $poco$ & $nada$ \\ \hline
+      & $0.2$ & $0.6$ & $0.2$\\ \hline
+\end{tabular}
+\caption{Distribución de probabilidad del nodo Ingesta de alcohol}
+\label{tab:probA}
+\end{table}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|}
+\hline
+$P(HG)$ & $Si$  & $No$  \\ \hline
+      & $0.2$ & $0.8$ \\ \hline
+\end{tabular}
+\caption{Distribución de probabilidad del nodo Herencia Genética}
+\label{tab:probHG}
+\end{table}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|}
+\hline
+$P(H|HG)$ & $Si$  & $No$  \\ \hline
+$Si$ & $0.95$ & $0.05$ \\ \hline
+$No$ & $0.1$ & $0.9$ \\ \hline
+\end{tabular}
+\caption{Distribución de probabilidad del nodo Hiperuricemia}
+\label{tab:probH}
+\end{table}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|}
+\hline
+$P(I|G)$ & $Si$  & $No$  \\ \hline
+$Si$ & $0.9$ & $0.1$ \\ \hline
+$No$ & $0.2$ & $0.8$ \\ \hline
+\end{tabular}
+\caption{Distribución de probabilidad del nodo Inflamación de extremidades}
+\label{tab:probI}
+\end{table}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|}
+\hline
+$P(P|D,A)$ & $Sobrepeso$  & $Saludable$  \\ \hline
+$buena,mucho$ & $0.3$ & $0.7$ \\ \hline
+$buena,poco$ & $0.1$ & $0.9$ \\ \hline
+$buena,nada$ & $0.05$ & $0.95$ \\ \hline
+$mala,mucho$ & $0.95$ & $0.05$ \\ \hline
+$mala,poco$ & $0.7$ & $0.3$ \\ \hline
+$mala,nada$ & $0.6$ & $0.4$ \\ \hline
+\end{tabular}
+\caption{Distribución de probabilidad del nodo Peso}
+\label{tab:probP}
+\end{table}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|}
+\hline
+$P(AU|H,A)$ & $mucho$  & $poco$  \\ \hline
+$si,mucho$ & $0.98$ & $0.02$ \\ \hline
+$si,poco$ & $0.9$ & $0.1$ \\ \hline
+$si,nada$ & $0.85$ & $0.15$ \\ \hline
+$no,mucho$ & $0.6$ & $0.4$ \\ \hline
+$no,poco$ & $0.2$ & $0.8$ \\ \hline
+$no,nada$ & $0.02$ & $0.98$ \\ \hline
+\end{tabular}
+\caption{Distribución de probabilidad del nodo Presencia de ácido úrico}
+\label{tab:probAU}
+\end{table}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|c|c|c|}
+\hline
+$P(G|AU,P)$ & $Si$  & $No$  \\ \hline
+$mucho,sobrepeso$ & $0.98$ & $0.02$ \\ \hline
+$mucho,saludable$ & $0.95$ & $0.05$ \\ \hline
+$poco,sobrepeso$ & $0.3$ & $0.7$ \\ \hline
+$poco,saludable$ & $0.2$ & $0.8$ \\ \hline
+\end{tabular}
+\caption{Distribución de probabilidad del nodo Gota}
+\label{tab:probG}
+\end{table}
 
 
 **El script debe hacer lo siguiente:**
@@ -612,13 +736,113 @@ se da el valor de T, E "bloquea" el camino entre X y L, y por lo tanto, el nodo 
 - **Construir el DAG de la red bayesiana**
 
 ```{r}
+dag3 <- empty.graph(
+  nodes = c("D", "A", "HG", "H", "P", "AU", "G", "I")
+)
 
+modelstring(dag3) <- "[D][A][HG][H|HG][P|D:A][AU|A:H][G|P:AU][I|G]"
+graphviz.plot(dag3)
 ```
 
 - **Crear las tablas de probabilidad**
 
 ```{r}
+optional.d.state <- c("buena", "mala")
+optional.a.state <- c("mucho", "poco", "nada")
+optional.hg.state <- c("si", "no")
+optional.h.state <- c("si", "no")
+optional.p.state <- c("sobrepeso", "saludable")
+optional.au.state <- c("mucho", "poco")
+optional.g.state <- c("si", "no")
+optional.i.state <- c("si", "no")
 
+optional.d.probability <- array(
+  c(0.8, 0.2),
+  dim = 2,
+  dimnames = list(D = optional.d.state)
+)
+
+optional.a.probability <- array(
+  c(0.2, 0.6, 0.2),
+  dim = 3,
+  dimnames = list(A = optional.a.state)
+)
+
+optional.hg.probability <- array(
+  c(0.2, 0.8),
+  dim = 2,
+  dimnames = list(HG = optional.hg.state)
+)
+
+optional.h.probability <- array(
+  c(
+    0.95, 0.05,
+    0.1, 0.9
+  ),
+  dim = c(2, 2),
+  dimnames = list(H = optional.h.state, HG = optional.hg.state)
+)
+
+optional.p.probability <- array(
+  c(
+    0.3, 0.7,
+    0.95, 0.05,
+    0.1, 0.9,
+    0.7, 0.3,
+    0.05, 0.95,
+    0.6, 0.4
+  ),
+  dim = c(2, 2, 3),
+  dimnames = list(P = optional.p.state, D = optional.d.state, A = optional.a.state)
+)
+
+optional.au.probability <- array(
+  c(
+    0.98, 0.02,
+    0.6, 0.4,
+    0.9, 0.1,
+    0.2, 0.8,
+    0.85, 0.15,
+    0.02, 0.98
+  ),
+  dim = c(2, 2, 3),
+  dimnames = list(AU = optional.au.state, H = optional.h.state, A = optional.a.state)
+)
+
+optional.g.probability <- array(
+  c(
+    0.98, 0.02,
+    0.3, 0.7,
+    0.95, 0.05,
+    0.2, 0.8
+  ),
+  dim = c(2, 2, 2),
+  dimnames = list(G = optional.g.state, AU = optional.au.state, P = optional.p.state)
+)
+
+optional.i.probability <- array(
+  c(
+    0.9, 0.1,
+    0.2, 0.8
+  ),
+  dim = c(2, 2),
+  dimnames = list(I = optional.i.state, G = optional.g.state)
+)
+
+cpt3 <- list(
+    D=optional.d.probability,
+    A=optional.a.probability,
+    HG=optional.hg.probability,
+    H=optional.h.probability,
+    P=optional.p.probability,
+    AU=optional.au.probability,
+    G=optional.g.probability,
+    I=optional.i.probability
+)
+
+bn3 <- custom.fit(dag3, cpt3)
+junction3 <- compile(as.grain(bn3))
+bn3
 ```
 
 - **Hacer al menos tres consultas de la probabilidad a posteriori dada cierta evidencia, de alguna variable, usando el método exacto y los dos métodos aproximados.**
@@ -630,6 +854,8 @@ se da el valor de T, E "bloquea" el camino entre X y L, y por lo tanto, el nodo 
 - **Comprobar la d-separación en unos tres casos**
 
 ```{r}
-
+dsep(bn3, x = "A", y = "HG")
+dsep(bn3, x = "A", y = "HG", z = "AU")
+dsep(bn3, x = "I", y = "A", z="G")
 ```
 
