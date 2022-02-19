@@ -1,0 +1,112 @@
+---
+title: "Aprendizaje de redes bayesianas con R"
+author: "Daniel Ranchal Parrado"
+date: '`r Sys.setlocale(locale="es_ES.UTF-8"); format(Sys.Date(), "%d de %B de %Y")`'
+always_allow_html: true
+output:
+    pdf_document: default
+    html_notebook: default
+---
+
+```{r}
+library(bnlearn)
+set.seed(100)
+```
+
+# Ejercicio 1
+
+**Como trabajo obligatorio de esta parte de la asignatura, se debe entrgar un script en R y un documento que haga lo siguiente**
+
+1. **Seleccione una red bayesiana con al menos 7 variables. No tiene que ser una red de nueva creación. Puede ser una usada en otras partes de la asignatura o del [repositorio de bnlearn](https://www.bnlearn.com/bnrepository/)**.
+
+```{r}
+asia_network <- readRDS("asia.rds")
+```
+
+
+2. **Simular dos conjuntos de datos de distintos tamaños a partir de la red (por ejemplo uno con 200 casos y otro con 5000 casos).**
+
+```{r}
+small_dataset <- rbn(asia_network, n = 200)
+big_dataset <- rbn(asia_network, n = 5000)
+```
+
+3. **Aprender la estructura con dos métodos distintos, uno basado en test de independencia y otro en scores, y con los dos conjuntos de datos**
+
+```{r}
+gs.small_dataset.dag <- gs(small_dataset)
+gs.small_dataset.dag <- cextend(gs.small_dataset.dag)
+
+gs.big_dataset.dag <- gs(big_dataset)
+gs.big_dataset.dag <- cextend(gs.big_dataset.dag)
+
+tabu_search.bde.small_dataset.dag <- tabu(small_dataset, score = "bde")
+tabu_search.bde.small_dataset.dag <- cextend(tabu_search.bde.small_dataset.dag)
+
+tabu_search.bde.big_dataset.dag <- tabu(big_dataset, score = "bde")
+tabu_search.bde.big_dataset.dag <- cextend(tabu_search.bde.big_dataset.dag)
+```
+
+
+4. **Comparar la estructura de las redes obtenidas con las originales. Comentar las diferencias**
+
+```{r}
+# Just to convert bn.fit object to bn so we can use graphviz.compare function
+asia_network_bn <- model2network(modelstring(asia_network))
+
+graphviz.compare(asia_network_bn, gs.small_dataset.dag)
+hamming(gs.small_dataset.dag, asia_network_bn)
+shd(gs.small_dataset.dag, asia_network_bn)
+
+
+graphviz.compare(asia_network_bn, gs.big_dataset.dag)
+hamming(gs.big_dataset.dag, asia_network_bn)
+shd(gs.big_dataset.dag, asia_network_bn)
+
+graphviz.compare(asia_network_bn, tabu_search.bde.small_dataset.dag)
+hamming(tabu_search.bde.small_dataset.dag, asia_network_bn)
+shd(tabu_search.bde.small_dataset.dag, asia_network_bn)
+
+graphviz.compare(asia_network_bn, tabu_search.bde.big_dataset.dag)
+hamming(tabu_search.bde.big_dataset.dag, asia_network_bn)
+shd(tabu_search.bde.big_dataset.dag, asia_network_bn)
+```
+
+
+5. **Aprender los parámetros de las redes**
+
+```{r}
+gs.small_dataset.bayes <- bn.fit(
+    gs.small_dataset.dag,
+    data = small_dataset,
+    method = "bayes",
+    iss = 10
+)
+gs.small_dataset.bayes
+
+gs.big_dataset.bayes <- bn.fit(
+    gs.big_dataset.dag,
+    data = big_dataset,
+    method = "bayes",
+    iss = 10
+)
+gs.big_dataset.bayes
+
+tabu_search.bde.small_dataset.bayes <- bn.fit(
+    tabu_search.bde.small_dataset.dag,
+    data = small_dataset,
+    method = "bayes",
+    iss = 10
+)
+tabu_search.bde.small_dataset.bayes
+
+tabu_search.bde.big_dataset.bayes <- bn.fit(
+    tabu_search.bde.big_dataset.dag,
+    data = big_dataset,
+    method = "bayes",
+    iss = 10
+)
+
+tabu_search.bde.big_dataset.bayes
+```
+
