@@ -6,8 +6,8 @@ header-includes:
 date: "12/02/2022"
 always_allow_html: true
 output:
-  html_notebook: default
   pdf_document: default
+  html_notebook: default
 ---
 
 ```{r}
@@ -427,7 +427,8 @@ exercise3.exact_method <- querygrain(
 )
 
 exercise3.t.approximated.ls <- cpquery(
-  bn2, event = (`T` == "yes"),
+  bn2,
+  event = (`T` == "yes"),
   evidence = (A == "yes") & (D == "yes"),
   method = "ls"
 )
@@ -848,7 +849,95 @@ bn3
 - **Hacer al menos tres consultas de la probabilidad a posteriori dada cierta evidencia, de alguna variable, usando el método exacto y los dos métodos aproximados.**
 
 ```{r}
+optional.evidence <- setEvidence(
+  junction3,
+  nodes = c("A", "P"),
+  states = c("mucho", "sobrepeso")
+)
 
+optional.exact_method <- querygrain(
+  optional.evidence,
+  nodes = c("AU", "G", "I"),
+  type = "marginal"
+)
+
+optional.au.approximated.ls <- cpquery(
+  bn3,
+  event = (AU == "mucho"),
+  evidence = (A == "mucho") & (P == "sobrepeso"),
+  method = "ls"
+)
+optional.g.approximated.ls <- cpquery(
+  bn3,
+  event = (G == "si"),
+  evidence = (A == "mucho") & (P == "sobrepeso"),
+  method = "ls"
+)
+optional.i.approximated.ls <- cpquery(
+  bn3,
+  event = (I == "si"),
+  evidence = (A == "mucho") & (P == "sobrepeso"),
+  method = "ls"
+)
+
+optional.approximated_method.ls <- list(
+  AU = array(
+    c(optional.au.approximated.ls, abs(optional.au.approximated.ls - 1)),
+    dim = 2,
+    dimnames = list(AU = optional.au.state)
+  ),
+  G = array(
+    c(optional.g.approximated.ls, abs(optional.g.approximated.ls - 1)),
+    dim = 2,
+    dimnames = list(G = optional.g.state)
+  ),
+  I = array(
+    c(optional.i.approximated.ls, abs(optional.i.approximated.ls - 1)),
+    dim = 2,
+    dimnames = list(I = optional.i.state)
+  )
+)
+
+optional.au.approximated.lw <- cpquery(
+  bn3,
+  event = (AU == "mucho"),
+  evidence = list(A = "mucho", P = "sobrepeso"),
+  method = "lw"
+)
+optional.g.approximated.lw <- cpquery(
+  bn3,
+  event = (G == "si"),
+  evidence = list(A = "mucho", P = "sobrepeso"),
+  method = "lw"
+)
+optional.i.approximated.lw <- cpquery(
+  bn3,
+  event = (I == "si"),
+  evidence = list(A = "mucho", P = "sobrepeso"),
+  method = "lw"
+)
+
+optional.approximated_method.lw <- list(
+  AU = array(
+    c(optional.au.approximated.lw, abs(optional.au.approximated.lw - 1)),
+    dim = 2,
+    dimnames = list(AU = optional.au.state)
+  ),
+  G = array(
+    c(optional.g.approximated.lw, abs(optional.g.approximated.lw - 1)),
+    dim = 2,
+    dimnames = list(G = optional.g.state)
+  ),
+  I = array(
+    c(optional.i.approximated.lw, abs(optional.i.approximated.lw - 1)),
+    dim = 2,
+    dimnames = list(I = optional.i.state)
+  )
+)
+
+optional.exact_method
+optional.approximated_method.ls
+optional.approximated_method.lw
 ```
 
 - **Comprobar la d-separación en unos tres casos**
