@@ -3,7 +3,7 @@ title: "Introducción al uso de redes bayesianas con R"
 author: "Daniel Ranchal Parrado"
 header-includes:
   - \usepackage{float}
-date: "12/02/2022"
+date: '`r Sys.setlocale(locale="es_ES.UTF-8"); format(Sys.Date(), "%d de %B de %Y")`'
 always_allow_html: true
 output:
   pdf_document: default
