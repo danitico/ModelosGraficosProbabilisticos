@@ -129,9 +129,9 @@ bn
 - P(X=yes|E=yes) = 0.98
 - P(X=yes|E=no) = 0.05
 - P(D=yes|E=yes, B=yes) = 0.9
-- P(E=yes|E=yes, B=no) = 0.7
-- P(E=yes|E=no, B=yes) = 0.8
-- P(E=yes|E=no, B=no) = 0.1
+- P(D=yes|E=yes, B=no) = 0.7
+- P(D=yes|E=no, B=yes) = 0.8
+- P(D=yes|E=no, B=no) = 0.1
 
 ```{r}
 dag2 <- empty.graph(
