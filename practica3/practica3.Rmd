@@ -4,8 +4,8 @@ author: "Daniel Ranchal Parrado"
 date: '`r Sys.setlocale(locale="es_ES.UTF-8"); format(Sys.Date(), "%d de %B de %Y")`'
 always_allow_html: true
 output:
-    html_notebook: default
     pdf_document: default
+    html_notebook: default
 ---
 
 ```{r}
@@ -19,7 +19,7 @@ set.seed(100)
 
 1. **Seleccione una red bayesiana con al menos 7 variables. No tiene que ser una red de nueva creación. Puede ser una usada en otras partes de la asignatura o del [repositorio de bnlearn](https://www.bnlearn.com/bnrepository/)**.
 
-Para este ejercicio se ha utilizado la red asia, que está disponible en el repositorio de bnlearn.-Esta red está compuesta de 8 nodos. He descargado el fichero con el formato rds, que permite guardar objetos de R. En este caso el objeto que se ha guardado es de la clase bn.fit. En el ejercicio 4 este objecto dará problemas para hacer la comparación visual, por lo que se obtendrá el grafo acíclico no dirigido a partir de este.
+Para este ejercicio se ha utilizado la red asia, que está disponible en el repositorio de bnlearn. Esta red está compuesta de 8 nodos. He descargado el fichero con el formato rds, que permite guardar objetos de R. En este caso el objeto que se ha guardado es de la clase **bn.fit**. En el ejercicio 4 este objecto dará problemas para hacer la comparación visual, por lo que se obtendrá el grafo acíclico no dirigido a partir de este.
 
 ```{r}
 asia_network <- readRDS("asia.rds")
@@ -29,7 +29,7 @@ graphviz.plot(asia_network)
 
 2. **Simular dos conjuntos de datos de distintos tamaños a partir de la red (por ejemplo uno con 200 casos y otro con 5000 casos).**
 
-Para poder simular conjuntos de datos a partir de la red asia, se ha utilizado la función rbn. La función rbn implementa el muestreo lógico aleatorio y permite fijar el número de muestras que queremos generar. En este caso se han generado dos muestras, una con 200 instancias y otra con 5000 instancias.
+Para poder simular conjuntos de datos a partir de la red asia, se ha utilizado la función **rbn**. La función rbn implementa el muestreo lógico probabilístico y permite fijar el número de muestras que queremos generar. En este caso se han generado dos muestras, una con 200 instancias y otra con 5000 instancias.
 
 ```{r}
 small_dataset <- rbn(asia_network, n = 200)
@@ -42,7 +42,7 @@ En este apartado se ha aprendido la estructura utilizando el conjunto de datos p
 
 Como método basado en test de independencias se ha utilizado el método growth-shrink. Respecto al método basado en scores que se ha utilizado, se ha usado una búsqueda tabú con el score bde (Bayesian Dirichlet equivalent).
 
-Se puede observar que en cada caso, después de aprender la estructura con cada método y con cada dataset, se ha aplicado la función cextend. Lo que hace esta función es convertir la estructura aprendida en una estructura consistente, lo que supone tener un grafo dirigido no acíclico.
+Se puede observar que en cada caso, después de aprender la estructura con cada método y con cada dataset, se ha aplicado la función **cextend**. Lo que hace esta función es convertir la estructura aprendida en una estructura consistente, lo que supone tener un grafo dirigido no acíclico.
 
 ```{r}
 gs.small_dataset.dag <- gs(small_dataset)
@@ -69,11 +69,13 @@ En este apartado se ha comparado la red original con la redes que se han aprendi
 
 En el gráfico generado se observan las diferencias entre las distintas redes aprendidas y la red original. Es destacable la diferencia que hay entre los métodos basados en test de independencia y aquellos basados en score. Aquellos basados en score suelen obtener un mayor número de arcos y ser más similares a la red original basándonos en la distancia de hamming. Por otra parte, aquellos basados en test de independencia obtienen una distancia mayor en hamming y por lo tanto, una diferencia muy considerable respecto al anterior método.
 
-Si nos fijamos en las diferencias visuales..
+Si nos fijamos en las diferencias visuales, cuando se aprende la estructura con un dataset pequeño suele haber un mayor número de falsos negativos, es decir, arcos que faltan respecto a la red original. Por otro lado, con los conjuntos de datos grandes, se suelen cometer más fallos respecto a añadir arcos de más o en una dirección equivocada.
+
+Si se comparan de manera general los dos métodos, aquellas redes aprendidas con métodos basados en score son mucho más densas que aquellas aprendidas con métodos basados en test de independencia.
 
 ```{r}
 # Just to convert bn.fit object to bn so we can use graphviz.compare function
-asia_network_bn <- model2network(modelstring(asia_network))
+asia_network_bn <- bn.net(asia_network)
 
 par(mfrow = c(2, 3))
 graphviz.compare(
@@ -104,6 +106,8 @@ graphviz.compare(
 
 
 5. **Aprender los parámetros de las redes**
+
+Finalmente, en esta sección se aprenden los parámetros para cada estructura de red aprendida con su conjunto de datos correspondiente. Para todos los casos, se ha utilizado un procedimiento bayesiano para estimar los parámetros y se ha especificado un tamaño muestral equivalente del 10, que está dentro de la recomendación de fijarlo entre 1 y 15. Mientras más grande sea este tamaño muestral equivalente, la distribuciones a posteriori estimadas tenderán hacia una distribución uniforme.
 
 ```{r}
 gs.small_dataset.bayes <- bn.fit(
