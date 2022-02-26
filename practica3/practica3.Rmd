@@ -1,0 +1,146 @@
+---
+title: "Aprendizaje de redes bayesianas con R"
+author: "Daniel Ranchal Parrado"
+date: '`r Sys.setlocale(locale="es_ES.UTF-8"); format(Sys.Date(), "%d de %B de %Y")`'
+always_allow_html: true
+output:
+    pdf_document: default
+    html_notebook: default
+---
+
+```{r}
+library(bnlearn)
+set.seed(100)
+```
+
+# Ejercicio 1
+
+**Como trabajo obligatorio de esta parte de la asignatura, se debe entrgar un script en R y un documento que haga lo siguiente**
+
+1. **Seleccione una red bayesiana con al menos 7 variables. No tiene que ser una red de nueva creación. Puede ser una usada en otras partes de la asignatura o del [repositorio de bnlearn](https://www.bnlearn.com/bnrepository/)**.
+
+Para este ejercicio se ha utilizado la red asia, que está disponible en el repositorio de bnlearn. Esta red está compuesta de 8 nodos. He descargado el fichero con el formato rds, que permite guardar objetos de R. En este caso el objeto que se ha guardado es de la clase **bn.fit**. En el ejercicio 4 este objecto dará problemas para hacer la comparación visual, por lo que se obtendrá el grafo acíclico no dirigido a partir de este.
+
+```{r}
+asia_network <- readRDS("asia.rds")
+graphviz.plot(asia_network)
+```
+
+
+2. **Simular dos conjuntos de datos de distintos tamaños a partir de la red (por ejemplo uno con 200 casos y otro con 5000 casos).**
+
+Para poder simular conjuntos de datos a partir de la red asia, se ha utilizado la función **rbn**. La función rbn implementa el muestreo lógico probabilístico y permite fijar el número de muestras que queremos generar. En este caso se han generado dos muestras, una con 200 instancias y otra con 5000 instancias.
+
+```{r}
+small_dataset <- rbn(asia_network, n = 200)
+big_dataset <- rbn(asia_network, n = 5000)
+```
+
+3. **Aprender la estructura con dos métodos distintos, uno basado en test de independencia y otro en scores, y con los dos conjuntos de datos**
+
+En este apartado se ha aprendido la estructura utilizando el conjunto de datos pequeño y grande utilizando métodos basados en test de independencia y en score.
+
+Como método basado en test de independencias se ha utilizado el método growth-shrink. Respecto al método basado en scores que se ha utilizado, se ha usado una búsqueda tabú con el score bde (Bayesian Dirichlet equivalent).
+
+Se puede observar que en cada caso, después de aprender la estructura con cada método y con cada dataset, se ha aplicado la función **cextend**. Lo que hace esta función es convertir la estructura aprendida en una estructura consistente, lo que supone tener un grafo dirigido no acíclico.
+
+```{r}
+gs.small_dataset.dag <- gs(small_dataset)
+gs.small_dataset.dag <- cextend(gs.small_dataset.dag)
+
+gs.big_dataset.dag <- gs(big_dataset)
+gs.big_dataset.dag <- cextend(gs.big_dataset.dag)
+
+tabu_search.bde.small_dataset.dag <- tabu(small_dataset, score = "bde")
+tabu_search.bde.small_dataset.dag <- cextend(tabu_search.bde.small_dataset.dag)
+
+tabu_search.bde.big_dataset.dag <- tabu(big_dataset, score = "bde")
+tabu_search.bde.big_dataset.dag <- cextend(tabu_search.bde.big_dataset.dag)
+```
+
+
+4. **Comparar la estructura de las redes obtenidas con las originales. Comentar las diferencias**
+
+En este apartado se ha comparado la red original con la redes que se han aprendido en la sección anterior. Para ello, se han comparado visualmente con la función **graphviz.compare** y con la métrica de distancia **hamming**. La función **graphviz.compare** recibe como primer argumento la red real y como segundo argumento la red aprendida. La notación visual que utiliza es la siguiente:
+
+- Los arcos que son verdaderos positivos son negros
+- Los arcos que son falsos positivos (que no existen o tienen otra dirección en la red original) son rojos
+- Los arcos que son falsos negativos son azules.
+
+En el gráfico generado se observan las diferencias entre las distintas redes aprendidas y la red original. Es destacable la diferencia que hay entre los métodos basados en test de independencia y aquellos basados en score. Aquellos basados en score suelen obtener un mayor número de arcos y ser más similares a la red original basándonos en la distancia de hamming. Por otra parte, aquellos basados en test de independencia obtienen una distancia mayor en hamming y por lo tanto, una diferencia muy considerable respecto al anterior método.
+
+Si nos fijamos en las diferencias visuales, cuando se aprende la estructura con un dataset pequeño suele haber un mayor número de falsos negativos, es decir, arcos que faltan respecto a la red original. Por otro lado, con los conjuntos de datos grandes, se suelen cometer más fallos respecto a añadir arcos de más o en una dirección equivocada.
+
+Si se comparan de manera general los dos métodos, aquellas redes aprendidas con métodos basados en score son mucho más densas que aquellas aprendidas con métodos basados en test de independencia.
+
+```{r}
+# Just to convert bn.fit object to bn so we can use graphviz.compare function
+asia_network_bn <- bn.net(asia_network)
+
+par(mfrow = c(2, 3))
+graphviz.compare(
+    asia_network_bn,
+    gs.small_dataset.dag,
+    gs.big_dataset.dag,
+    tabu_search.bde.small_dataset.dag,
+    tabu_search.bde.big_dataset.dag,
+    main = c(
+        "Red original",
+        "200 casos con Growth-shrink",
+        "5000 casos con Growth-shrink",
+        "200 casos con búsqueda tabú",
+        "5000 casos con búsqueda tabú"
+    ),
+    sub = paste(
+        "Hamming = ",
+        c(
+            "0",
+            hamming(gs.small_dataset.dag, asia_network_bn),
+            hamming(gs.big_dataset.dag, asia_network_bn),
+            hamming(tabu_search.bde.small_dataset.dag, asia_network_bn),
+            hamming(tabu_search.bde.big_dataset.dag, asia_network_bn)
+        )
+    )
+)
+```
+
+
+5. **Aprender los parámetros de las redes**
+
+Finalmente, en esta sección se aprenden los parámetros para cada estructura de red aprendida con su conjunto de datos correspondiente. Para todos los casos, se ha utilizado un procedimiento bayesiano para estimar los parámetros y se ha especificado un tamaño muestral equivalente del 10, que está dentro de la recomendación de fijarlo entre 1 y 15. Mientras más grande sea este tamaño muestral equivalente, la distribuciones a posteriori estimadas tenderán hacia una distribución uniforme.
+
+```{r}
+gs.small_dataset.bayes <- bn.fit(
+    gs.small_dataset.dag,
+    data = small_dataset,
+    method = "bayes",
+    iss = 10
+)
+gs.small_dataset.bayes
+
+gs.big_dataset.bayes <- bn.fit(
+    gs.big_dataset.dag,
+    data = big_dataset,
+    method = "bayes",
+    iss = 10
+)
+gs.big_dataset.bayes
+
+tabu_search.bde.small_dataset.bayes <- bn.fit(
+    tabu_search.bde.small_dataset.dag,
+    data = small_dataset,
+    method = "bayes",
+    iss = 10
+)
+tabu_search.bde.small_dataset.bayes
+
+tabu_search.bde.big_dataset.bayes <- bn.fit(
+    tabu_search.bde.big_dataset.dag,
+    data = big_dataset,
+    method = "bayes",
+    iss = 10
+)
+
+tabu_search.bde.big_dataset.bayes
+```
+
